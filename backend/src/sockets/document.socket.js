@@ -31,11 +31,11 @@ module.exports = (io) => {
           return;
         }
 
-        socket.to(docId).emit("document-updated", {
-          content,
-          updatedBy: userId,
-          timestamp: new Date()
-        });
+        io.to(docId).emit("document-updated", {
+  content,
+  updatedBy: userId,
+  timestamp: new Date()
+});
 
         console.log(`Document ${docId} updated by user ${userId}`);
       } catch (error) {

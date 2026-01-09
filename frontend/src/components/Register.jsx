@@ -13,6 +13,10 @@ export default function Register({ setIsLogin }) {
         email,
         password
       });
+      localStorage.setItem("token", res.data.token);
+    localStorage.setItem("userId", res.data.user.id);
+    localStorage.setItem("userName", res.data.user.name);
+    window.location.href = "/dashboard";
 
       alert("Registration successful! Please login.");
       setIsLogin(true);

@@ -9,6 +9,8 @@ export default function Login({ setIsLogin }) {
   try {
     const res = await API.post("/auth/login", { email, password });
     localStorage.setItem("token", res.data.token);
+    localStorage.setItem("userId", res.data.user.id);
+    localStorage.setItem("userName", res.data.user.name);
     window.location.href = "/dashboard";
   } catch (err) {
     console.error(err);

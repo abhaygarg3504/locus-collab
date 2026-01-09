@@ -20,12 +20,11 @@ export default function Editor({ documentId }) {
   useEffect(() => {
     if (!quill) return;
 
-    socket.once("load-document", document => {
-      quill.setContents(document);
-      quill.enable();
-    });
-
-    socket.emit("get-document", documentId);
+   socket.once("document-loaded", document => {
+  quill.setContents(document);
+  quill.enable();
+});
+socket.emit("join-document", documentId);
   }, [quill, documentId]);
 
   useEffect(() => {
@@ -33,21 +32,31 @@ export default function Editor({ documentId }) {
 
     const handler = (delta, old, source) => {
       if (source !== "user") return;
-      socket.emit("send-changes", delta);
+     socket.emit("edit-document", {
+  docId: documentId,
+  content: delta,
+  userId: localStorage.getItem("userId") 
+});
     };
 
     quill.on("text-change", handler);
     return () => quill.off("text-change", handler);
   }, [quill]);
 
-  useEffect(() => {
-    if (!quill) return;
+useEffect(() => {
+  if (!quill) return;
 
-    const handler = delta => quill.updateContents(delta);
-    socket.on("receive-changes", handler);
-
-    return () => socket.off("receive-changes", handler);
-  }, [quill]);
+  const handler = (data) => {
+    const currentUserId = localStorage.getItem("userId");
+    
+    if (data.updatedBy === currentUserId) return;
+    
+    quill.updateContents(data.content, "silent");
+  };
+  
+  socket.on("document-updated", handler);
+  return () => socket.off("document-updated", handler);
+}, [quill]);
 
   return <div className="container mx-auto mt-5" ref={wrapperRef}></div>;
 }
